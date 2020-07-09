@@ -1,4 +1,4 @@
-# SQLZOO刷题
+# 	SQLZOO刷题
 ## SELECT basics
 >1.字串應該在'單引號'中。  
 **修改此例子,以顯示德國 Germany 的人口**
@@ -12,14 +12,14 @@ SELECT population FROM world WHERE name = 'Germany '
 
 ```sql
  SELECT name, gdp/population FROM world WHERE area > 5000000
-  ```
+```
 
 >3.檢查列表:單詞“IN”可以讓我們檢查一個項目是否在列表中。  
 **顯示“Ireland 愛爾蘭”,“Iceland 冰島”,“Denmark 丹麥”的國家名稱和人口**
 
 ```sql
  SELECT name, population FROM world WHERE name IN ('Ireland ', 'Iceland ', 'Denmark ')
- ```
+```
 
 >4.BETWEEN 允許範圍檢查 - 注意,這是包含性的。  
 **修改此例子,以顯示面積為 200,000 及 250,000 之間的國家名稱和該國面積。**
@@ -38,31 +38,31 @@ SELECT name FROM world WHERE name LIKE 'Y%'
 >2.**找出以 Y 為結尾的國家**
 ```sql
 SELECT name FROM world WHERE name LIKE '%Y'
-``` 
+```
 >3.**找出所有國家,其名字包括字母x**
 ```sql
 SELECT name FROM world WHERE name LIKE '%x%'
-``` 
+```
 
 >4.**找出所有國家,其名字以 land 作結尾**
 ```sql
 SELECT name FROM world WHERE name LIKE '%land'
-``` 
+```
 
 >5.**找出所有國家,其名字以 C 作開始,ia 作結尾**
 ```sql
 SELECT name FROM world WHERE name LIKE 'C%ia'
-``` 
+```
 
 >6.**找出所有國家,其名字包括字母oo**
 ```sql
 SELECT name FROM world WHERE name LIKE '%oo%'
-``` 
+```
 
 >7.**找出所有國家,其名字包括三個或以上的a**
 ```sql
 SELECT name FROM world WHERE name LIKE '%a%a%a%'
-``` 
+```
 
 >8.你可以用底線符_當作單一個字母的萬用字元  
 **找出所有國家,其名字以t作第二個字母**
@@ -149,36 +149,106 @@ SELECT name,population,area FROM world WHERE population>250000000 or area>300000
 SELECT name,population,area FROM world WHERE population>250000000 xor area>3000000
 ```
 
->2.顯示具有至少2億人口的國家名稱。
+>9.使用ROUND函数
+>
+>**對於南美顯示以百萬計人口，以十億計2位小數GDP**
+>
+>round(population/100000000,n),n代表的是小数点后n位
 ```sql
-SELECT name FROM world WHERE population>200000000
+select name,round(population/1000000,2),round(gdp/1000000000,2) from world 
+where continent ='South America'
 ```
 
->2.顯示具有至少2億人口的國家名稱。
+>10.**顯示萬億元國家的人均國內生產總值，四捨五入到最近的$ 1000**。
 ```sql
-SELECT name FROM world WHERE population>200000000
+select name,round(gdp/population,-3) from world where gdp>1000000000000
 ```
 
->2.顯示具有至少2億人口的國家名稱。
+>11.**Show the name - but substitute** **Australasia** **for** **Oceania** **- for countries beginning with N.**
 ```sql
-SELECT name FROM world WHERE population>200000000
+SELECT name,
+       CASE WHEN continent='Oceania' THEN 'Australasia'
+            ELSE continent END
+ FROM world
+ WHERE name LIKE 'N%'
 ```
 
->2.顯示具有至少2億人口的國家名稱。
+## SELECT from Nobel 
+
+>1.**更改查詢以顯示1950年諾貝爾獎的獎項資料。**
+
 ```sql
-SELECT name FROM world WHERE population>200000000
+SELECT yr, subject, winner FROM nobel WHERE yr =1950
 ```
 
->2.顯示具有至少2億人口的國家名稱。
+>2.**顯示誰贏得了1962年文學獎(Literature)。**
+
 ```sql
-SELECT name FROM world WHERE population>200000000
+SELECT winner FROM nobel WHERE yr = 1962 AND subject = 'Literature'
 ```
 
->2.顯示具有至少2億人口的國家名稱。
+>3.**顯示“愛因斯坦”('Albert Einstein') 的獲獎年份和獎項。**
+
 ```sql
-SELECT name FROM world WHERE population>200000000
+SELECT yr,subject FROM nobel WHERE winner='Albert Einstein'
 ```
 
+>4.**顯示2000年及以後的和平獎(‘Peace’)得獎者。**
 
+```sql
+SELECT winner FROM nobel WHERE subject='Peace' and yr>=2000
+```
+>4.**顯示2000年及以後的和平獎(‘Peace’)得獎者。**
 
+```sql
+SELECT winner FROM nobel WHERE subject='Peace' and yr>=2000
+```
 
+>5.**顯示1980年至1989年(包含首尾)的文學獎(Literature)獲獎者所有細節（年，主題，獲獎者）。**
+
+```sql
+SELECT yr,subject,winner FROM nobel 
+WHERE subject='Literature'and yr between 1980 and 1989
+```
+
+>6.**顯示總統獲勝者的所有細節。**
+
+```sql
+SELECT * FROM nobel
+WHERE  winner IN ('Theodore Roosevelt','Woodrow Wilson','Jimmy Carter')
+```
+
+>7.**顯示名字為John 的得獎者。 (注意:外國人名字(First name)在前，姓氏(Last name)在後)。**
+
+```sql
+SELECT winner FROM nobel where winner like 'John%'
+```
+
+>8.**顯示1980年物理學(physics)獲獎者，及1984年化學獎(chemistry)獲得者。**
+
+```sql
+SELECT yr,subject,winner FROM nobel 
+WHERE 
+(subject='physics' and yr = 1980) or (subject='chemistry' and yr = 1984)
+```
+
+>9.**查看1980年獲獎者，但不包括化學獎(Chemistry)和醫學獎(Medicine)。**
+
+```sql
+SELECT yr,subject,winner FROM nobel 
+WHERE yr = 1980 and subject not in('Chemistry','Medicine')
+```
+
+>10.**顯示早期的醫學獎(Medicine)得獎者（1910之前，不包括1910），及近年文學獎(Literature)得獎者（2004年以後，包括2004年）。**
+
+```sql
+SELECT yr,subject,winner FROM nobel 
+WHERE 
+(subject='Medicine' and yr <1910) or (subject='Literature' and yr>=2004)
+```
+
+>11.**Find all details of the prize won by PETER GRÜNBERG。**
+
+```sql
+SELECT yr,subject,winner FROM nobel WHERE winner='PETER GRÜNBERG'
+```
